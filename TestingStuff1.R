@@ -19,7 +19,7 @@ library(stringr)
 # Specify the directory containing text files
 dir_path <- "C:/R_ProjectsWorkspace/CapstoneFinalProject/Coursera-SwiftKey/final/en_US"  # Replace with your directory path
 
-# Create a corpus from all text files in the directory
+# Create a corpus from all text files in the directory....
 corpus <- Corpus(DirSource(dir_path))
 
 # Inspect the corpus..
@@ -30,7 +30,7 @@ summary(corpus)
 
 cat(head(corpus[[1]]$content, 10))
 
-cat(head(corpus[[2]]$content, 10))
+cat(head(corpus[[2]]$content, 100))
 
  
 file_path <- "C:/R_ProjectsWorkspace/CapstoneFinalProject/Coursera-SwiftKey/final/en_US/en_US.twitter.txt"
