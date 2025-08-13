@@ -60,12 +60,12 @@ system.time({
   
   # Debug: Inspect first few lines
   lines <- unlist(strsplit(doc_content_processed, "\n"))
-  cat("Sample of first 5 lines after preprocessing:\n")
-  print(head(lines, 5))
+  #cat("Sample of first 5 lines after preprocessing:\n")
+  #print(head(lines, 5))
   
   # Debug: Check word boundaries in a sample
   sample_words <- unlist(strsplit(lines[1], "\\s+"))
-  cat("First 10 words of first line (to check spacing):\n")
+  #cat("First 10 words of first line (to check spacing):\n")
   #print(head(sample_words, 10))
   
   # Save processed content for manual inspection
@@ -73,6 +73,19 @@ system.time({
   
   print("Finished preprocessing.")
 })
+
+
+library(tidytext)
+text_df <- data.frame(text = doc_content_processed, stringsAsFactors = FALSE)
+bigrams <- text_df %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%
+  count(bigram, sort = TRUE)
+print(head(bigrams, 10))
+
+
+
+
+
 
 
 
