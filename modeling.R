@@ -75,7 +75,7 @@ system.time({
 })
 
 
-library(tidytext)
+
 text_df <- data.frame(text = doc_content_processed, stringsAsFactors = FALSE)
 bigrams <- text_df %>%
   unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%
