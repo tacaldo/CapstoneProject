@@ -19,12 +19,12 @@ library(stringr)
 # Specify the directory containing text files
 dir_path <- "C:/R_ProjectsWorkspace/CapstoneFinalProject/Coursera-SwiftKey/final/en_US"  # Replace with your directory path
 
-# Create a corpus from all text files in the directory....
+# Create a corpus from all text files in the directory..
 corpus <- Corpus(DirSource(dir_path))
 
 # Inspect the corpus..
 summary(corpus)
-# inspect(corpus)
+inspect(corpus)
 
 
 

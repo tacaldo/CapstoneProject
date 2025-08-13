@@ -11,10 +11,6 @@ library(wordcloud)
 library(stringr)
 library(quanteda)
 
-# Load required libraries
-library(tm)
-library(dplyr)  # For potential n-gram processing
-
 dir_path <- "C:/R_ProjectsWorkspace/CapstoneFinalProject/Coursera-SwiftKey/final/en_US"
 
 # Create corpus from directory with explicit UTF-8 encoding
@@ -70,7 +66,7 @@ system.time({
   # Debug: Check word boundaries in a sample
   sample_words <- unlist(strsplit(lines[1], "\\s+"))
   cat("First 10 words of first line (to check spacing):\n")
-  print(head(sample_words, 10))
+  #print(head(sample_words, 10))
   
   # Save processed content for manual inspection
   writeLines(doc_content_processed, "processed_sample.txt")
