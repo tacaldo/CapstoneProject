@@ -84,6 +84,29 @@ print(head(bigrams, 10))
 
 
 
+# Testing -----
+library(tidytext)
+library(dplyr)
+
+sentence <- tibble(text = "the cat sat on the mat")
+bigrams <- sentence %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
+
+bigrams %>%
+  count(bigram) %>%
+  mutate(prob = n / sum(n))
+
+
+install.packages("text2vec")
+library(text2vec)
+
+tokens <- word_tokenizer("the cat sat on the mat")
+it <- itoken(tokens, progress_bar = FALSE)
+vocab <- create_vocabulary(it)
+vectorizer <- vocab_vectorizer(vocab)
+dtm <- create_dtm(it, vectorizer)
+
+# ------------
 
 
 
