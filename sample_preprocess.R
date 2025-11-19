@@ -108,10 +108,23 @@ system.time({
 
 
 # Generate bigram table with custom tokenization
+# text_df <- data.frame(text = doc_content_processed, stringsAsFactors = FALSE)
+# bigrams <- text_df %>%
+#   unnest_tokens(bigram, text, token = "regex", pattern = "\\b[[:alnum:]]+('[[:alnum:]]+)?\\b") %>%
+#   count(bigram, sort = TRUE)
+# cat("Top 10 bigrams:\n")
+# print(head(bigrams, 1000))
+
+# === CORRECT WAY TO GET ACTUAL BIGRAMS ===
 text_df <- data.frame(text = doc_content_processed, stringsAsFactors = FALSE)
+
 bigrams <- text_df %>%
-  unnest_tokens(bigram, text, token = "regex", pattern = "\\b[[:alnum:]]+('[[:alnum:]]+)?\\b") %>%
-  count(bigram, sort = TRUE)
-cat("Top 10 bigrams:\n")
-print(head(bigrams, 10))
+  unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%   # This is the key fix
+  count(bigram, sort = TRUE) %>%
+  filter(!is.na(bigram))  # Remove any accidental NA
+
+cat("Top 20 REAL bigrams:\n")
+print(head(bigrams, 20))
+
+
 
