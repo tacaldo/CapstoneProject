@@ -37,10 +37,10 @@ for (file_path in files) {
   
   # Optional: sample down if file is huge (especially twitter)
   # Comment out or adjust per file if you want full data
-  if (length(raw_text) > 300000) {
-    raw_text <- sample(raw_text, size = 200000)
-    cat("Sampled down to    : 200,000 lines (for speed)\n\n")
-  }
+  # if (length(raw_text) > 300000) {
+  #   raw_text <- sample(raw_text, size = 200000)
+  #   cat("Sampled down to    : 200,000 lines (for speed)\n\n")
+  # }
   
   # ------------------- 2. CLEAN USING tm -------------------
   corpus <- VCorpus(VectorSource(raw_text))
@@ -109,8 +109,13 @@ for (file_path in files) {
   
   write.csv(data_summary,            paste0(prefix, "_summary.csv"),           row.names = FALSE)
   write.csv(word_freq,               paste0(prefix, "_unigrams.csv"),          row.names = FALSE)
-  write.csv(head(big_freq, 5000),    paste0(prefix, "_bigrams_top5000.csv"),   row.names = FALSE)
-  write.csv(head(tri_freq, 5000),    paste0(prefix, "_trigrams_top5000.csv"),  row.names = FALSE)
+  # write.csv(head(big_freq, 5000),    paste0(prefix, "_bigrams_top5000.csv"),   row.names = FALSE)
+  # write.csv(head(tri_freq, 5000),    paste0(prefix, "_trigrams_top5000.csv"),  row.names = FALSE)
+  
+  write.csv(head(big_freq, 50),    paste0(prefix, "_bigrams_top50.csv"),   row.names = FALSE)
+  write.csv(head(tri_freq, 50),    paste0(prefix, "_trigrams_top50.csv"),  row.names = FALSE)
+  
+  
   writeLines(clean_lines,            paste0(prefix, "_cleaned.txt"))
   
   cat("\nAll files for", prefix, "saved successfully!\n")

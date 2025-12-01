@@ -107,24 +107,29 @@ system.time({
 
 
 
-# Generate bigram table with custom tokenization
-# text_df <- data.frame(text = doc_content_processed, stringsAsFactors = FALSE)
-# bigrams <- text_df %>%
-#   unnest_tokens(bigram, text, token = "regex", pattern = "\\b[[:alnum:]]+('[[:alnum:]]+)?\\b") %>%
-#   count(bigram, sort = TRUE)
-# cat("Top 10 bigrams:\n")
-# print(head(bigrams, 1000))
+# After all your excellent preprocessing...
 
-# === CORRECT WAY TO GET ACTUAL BIGRAMS ===
+# Final cleanup of curly quotes and newlines
+doc_content_processed <- sapply(single_doc_corpus, content)
+doc_content_processed <- iconv(doc_content_processed, to = "ASCII//TRANSLIT")
+doc_content_processed <- gsub("[“”]", "\"", doc_content_processed)
+doc_content_processed <- gsub("[‘’]", "'", doc_content_processed)
+doc_content_processed <- gsub("[-–—]", " - ", doc_content_processed)
+doc_content_processed <- gsub("…", "...", doc_content_processed)
+doc_content_processed <- gsub("[\n\r\t]", " ", doc_content_processed)
+doc_content_processed <- gsub("\\s+", " ", doc_content_processed)
+doc_content_processed <- trimws(doc_content_processed)
+doc_content_processed <- paste(doc_content_processed, collapse = " ")
+
+# Now generate REAL bigrams
 text_df <- data.frame(text = doc_content_processed, stringsAsFactors = FALSE)
 
 bigrams <- text_df %>%
-  unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%   # This is the key fix
+  unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%
   count(bigram, sort = TRUE) %>%
-  filter(!is.na(bigram))  # Remove any accidental NA
+  filter(nchar(bigram) > 2)  # Optional: remove very short garbage
 
-cat("Top 20 REAL bigrams:\n")
+cat("Top 20 actual bigrams:\n")
 print(head(bigrams, 20))
-
 
 
