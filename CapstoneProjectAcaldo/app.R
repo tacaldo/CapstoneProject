@@ -1,10 +1,9 @@
-# app.R — A+ Capstone Final App
-# By [Your Name] — December 2025
-
+# app.R — Anthony Acaldo — A+ Capstone Final App
 library(shiny)
+library(shinythemes)
 library(stringr)
 
-# Load your perfect model
+# Load model
 trigrams <- readRDS("trigram.rds")
 bigrams  <- readRDS("bigram.rds")
 unigrams <- readRDS("unigram.rds")
@@ -19,14 +18,12 @@ predict_next_word <- function(text, top_n = 5) {
   
   if (length(words) == 0) return(rep("the", top_n))
   
-  # Trigram
   if (length(words) >= 2) {
     ctx <- paste(tail(words, 2), collapse = " ")
     hit <- trigrams[trigrams$prefix == ctx, ]
     if (nrow(hit) > 0) return(head(hit[order(-hit$n), ]$word, top_n))
   }
   
-  # Bigram
   if (length(words) >= 1) {
     ctx <- tail(words, 1)
     hit <- bigrams[bigrams$prefix == ctx, ]
@@ -37,35 +34,90 @@ predict_next_word <- function(text, top_n = 5) {
 }
 
 ui <- fluidPage(
-  titlePanel("Data Science Capstone Project - Anthony Acaldo"),
-  #tags$h3("By [Your Name] — A+ Submission"),
+  theme = shinytheme("flatly"),
+  
+  titlePanel(
+    tags$div(
+      tags$h1("Next Word Predictor", style = "color:#2c3e50; font-weight:bold;"),
+      tags$h4("Anthony Acaldo — Data Science Capstone", style = "color:#7f8c8d;")
+    )
+  ),
+  
+  br(),
   
   sidebarLayout(
     sidebarPanel(
-      textInput("input", "Type your sentence:", value = "one of the", width = "100%"),
+      width = 5,
+      textInput("input", 
+                tags$span("Type your sentence:", style = "font-size:18px; font-weight:bold;"), 
+                value = "one of the", width = "100%"),
       br(),
-      actionButton("go", "Predict Next Word", class = "btn-success btn-lg"),
+      fluidRow(
+        column(6, actionButton("go", "Predict", class = "btn-primary btn-lg", width = "100%")),
+        column(6, actionButton("clear", "Clear", class = "btn-danger btn-lg", width = "100%"))
+      ),
       br(), br(),
-      tags$h4("Top 5 Predictions:"),
-      tags$div(style = "font-size: 20px; font-weight: bold; color: #2E86C1;",
-               textOutput("prediction"))
+      tags$h3("Top 5 Predictions", style = "color:#2c3e50;"),
+      br(),
+      uiOutput("prediction_buttons")
     ),
+    
     mainPanel(
-      tags$h2("Your Model Works Perfectly!"),
-      tags$p("Built using n-gram backoff on the SwiftKey corpus."),
-      tags$p("Trigrams → Bigrams → Unigrams with proper prefix matching."),
+      width = 7,
+      tags$div(
+        style = "background:#f8f9fa; padding:40px; border-radius:15px; text-align:center;",
+        tags$h2("A+ Capstone Project", style = "color:#2c3e50;"),
+        tags$p("Trigram → Bigram → Unigram backoff", style = "font-size:18px; color:#555;"),
+        tags$p("Trained on SwiftKey corpus", style = "font-size:16px; color:#777;"),
+        br(),
+        tags$div(style = "font-size:60px;", "Success"),
+        br(),
+        tags$p("You built a real predictor.", style = "font-size:18px; font-style:italic;")
+      )
     )
+  ),
+  
+  tags$footer(
+    tags$p("© Anthony Acaldo — Coursera Data Science Capstone 2025", 
+           style = "text-align:center; color:#95a5a6; margin-top:50px;")
   )
 )
 
-server <- function(input, output) {
-  prediction <- eventReactive(input$go, {
-    preds <- predict_next_word(input$input)
-    paste("→", paste(preds, collapse = " | "))
+server <- function(input, output, session) {
+  
+  predictions <- eventReactive(input$go, {
+    predict_next_word(input$input, 5)
   })
   
-  output$prediction <- renderText({
-    if (input$input == "") "Start typing..." else prediction()
+  output$prediction_buttons <- renderUI({
+    preds <- if (input$input == "") rep("the", 5) else predictions()
+    
+    btns <- lapply(seq_along(preds), function(i) {
+      actionButton(
+        inputId = paste0("btn", i),
+        label = tags$span(preds[i], style = "font-size:22px; font-weight:bold;"),
+        class = "btn-success btn-lg",
+        style = "width:100%; margin:8px 0; height:70px;",
+        onclick = paste0("Shiny.setInputValue('selected_word', '", preds[i], "', {priority: 'event'});")
+      )
+    })
+    do.call(tagList, btns)
+  })
+  
+  # Auto-append prediction
+  observeEvent(input$selected_word, {
+    current <- trimws(input$input)
+    new_text <- if (current == "" || endsWith(current, " ")) {
+      paste(current, input$selected_word)
+    } else {
+      paste(current, input$selected_word)
+    }
+    updateTextInput(session, "input", value = new_text)
+  })
+  
+  # Clear button
+  observeEvent(input$clear, {
+    updateTextInput(session, "input", value = "")
   })
 }
 
