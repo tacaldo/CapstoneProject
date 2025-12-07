@@ -51,13 +51,21 @@ ui <- fluidPage(
       textInput("input", 
                 tags$span("Type your sentence:", style = "font-size:18px; font-weight:bold;"), 
                 value = "one of the", width = "100%"),
+      
+      # RADIO BUTTONS — RIGHT UNDER TEXT INPUT
+      radioButtons("mode", "Prediction Mode:",
+                   choices = list("Next 5 Words" = 5, "Single Best Word" = 1),
+                   selected = 5, inline = TRUE),
+      
       br(),
       fluidRow(
         column(6, actionButton("go", "Predict", class = "btn-primary btn-lg", width = "100%")),
         column(6, actionButton("clear", "Clear", class = "btn-danger btn-lg", width = "100%"))
       ),
       br(), br(),
-      tags$h3("Top 5 Predictions", style = "color:#2c3e50;"),
+      
+      # Dynamic header
+      uiOutput("prediction_header"),
       br(),
       uiOutput("prediction_buttons")
     ),
@@ -86,11 +94,20 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   predictions <- eventReactive(input$go, {
-    predict_next_word(input$input, 5)
+    predict_next_word(input$input, as.numeric(input$mode))
+  })
+  
+  # Dynamic header
+  output$prediction_header <- renderUI({
+    if (input$mode == 1) {
+      tags$h3("Best Prediction", style = "color:#2c3e50;")
+    } else {
+      tags$h3("Top 5 Predictions", style = "color:#2c3e50;")
+    }
   })
   
   output$prediction_buttons <- renderUI({
-    preds <- if (input$input == "") rep("the", 5) else predictions()
+    preds <- if (input$input == "") rep("the", as.numeric(input$mode)) else predictions()
     
     btns <- lapply(seq_along(preds), function(i) {
       word <- preds[i]
@@ -109,7 +126,7 @@ server <- function(input, output, session) {
     do.call(tagList, btns)
   })
   
-  # Auto-append only valid words
+  # Auto-append
   observeEvent(input$selected_word, {
     if (!is.null(input$selected_word) && !is.na(input$selected_word) && input$selected_word != "") {
       current <- trimws(input$input)
@@ -122,7 +139,7 @@ server <- function(input, output, session) {
     }
   })
   
-  # Clear button
+  # Clear
   observeEvent(input$clear, {
     updateTextInput(session, "input", value = "")
   })
