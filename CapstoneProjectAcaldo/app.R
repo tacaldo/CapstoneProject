@@ -29,21 +29,19 @@ predict_next_word <- function(text, top_n = 5) {
     return(result)
   }
   
-  # Try trigram
   if (length(words) >= 2) {
     ctx <- paste(tail(words, 2), collapse = " ")
     hit <- trigrams[trigrams$prefix == ctx, ]
     if (nrow(hit) > 0) {
       hit <- hit[order(-hit$n), ]
       result$words <- head(hit$word, top_n)
-      result$source <- paste("Trigram match")
+      result$source <- "Trigram match"
       result$confidence <- "High"
       result$time_ms <- round((Sys.time() - start_time) * 1000, 1)
       return(result)
     }
   }
   
-  # Try bigram
   if (length(words) >= 1) {
     ctx <- tail(words, 1)
     hit <- bigrams[bigrams$prefix == ctx, ]
@@ -57,7 +55,6 @@ predict_next_word <- function(text, top_n = 5) {
     }
   }
   
-  # Unigram fallback
   result$words <- head(unigrams$word, top_n)
   result$source <- "Unigram fallback"
   result$confidence <- "Low"
@@ -68,14 +65,15 @@ predict_next_word <- function(text, top_n = 5) {
 ui <- fluidPage(
   theme = shinytheme("flatly"),
   
-  titlePanel("Next Word Predictor — Anthony Acaldo"),
+  titlePanel("Next Word Predictor, Capstone Project - Anthony Acaldo"),
   
   sidebarLayout(
     sidebarPanel(
       width = 5,
-      textInput("input", "Type your sentence:", value = "", width = "100%"),
-      radioButtons("mode", "Show:", 
-                   choices = c("Top 5 Predictions" = 5, "Best 1 Prediction" = 1), 
+      textInput("input", "Type your sentence:", 
+                value = "one of the", width = "100%"),
+      radioButtons("mode", "Show:",
+                   choices = c("Top 5 Predictions" = 5, "Best 1 Prediction" = 1),
                    selected = 5, inline = TRUE),
       fluidRow(
         column(6, actionButton("go", "Predict", class = "btn-primary btn-lg", width = "100%")),
@@ -93,7 +91,21 @@ ui <- fluidPage(
         style = "background:#f8f9fa; padding:30px; border-radius:12px; font-family:Arial;",
         tags$h3("Model Insights", style = "color:#2c3e50; margin-top:0;"),
         br(),
-        uiOutput("metrics")
+        uiOutput("metrics"),
+        br(), br(),
+        tags$div(
+          style = "background:#e8f4fc; padding:20px; border-left:6px solid #3498db; border-radius:8px;",
+          tags$h4("How to Use This App", style = "color:#2c3e50; margin-top:0;"),
+          tags$ul(
+            tags$li("Type or edit the sentence above"),
+            tags$li("Click ", tags$strong("Predict"), " to see suggestions"),
+            tags$li("Click any green button to ", tags$strong("auto-append"), " the word"),
+            tags$li("Use ", tags$strong("Clear"), " to start over"),
+            tags$li("Switch between Top 5 or Best 1 prediction")
+          ),
+          tags$p("Watch the confidence and source update in real time!", 
+                 style = "font-style:italic; color:#555;")
+        )
       )
     )
   )
@@ -101,16 +113,25 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   
-  prediction_result <- eventReactive(input$go, {
-    predict_next_word(input$input, as.numeric(input$mode))
+  rv <- reactiveValues(last_prediction = NULL)
+  
+  observeEvent(input$go, {
+    rv$last_prediction <- predict_next_word(input$input, as.numeric(input$mode))
   })
   
-  # Always show metrics (even on empty/clear)
+  observeEvent(input$clear, {
+    updateTextInput(session, "input", value = "")
+    rv$last_prediction <- NULL
+  })
+  
   current_result <- reactive({
-    if (input$input == "" && input$go == 0) {
-      list(confidence = "None", source = "No input", time_ms = 0)
+    if (is.null(rv$last_prediction)) {
+      list(words = rep("the", as.numeric(input$mode)),
+           source = "No input",
+           confidence = "None",
+           time_ms = 0)
     } else {
-      prediction_result()
+      rv$last_prediction
     }
   })
   
@@ -119,7 +140,7 @@ server <- function(input, output, session) {
     
     conf_color <- switch(res$confidence,
                          "High" = "#27ae60",
-                         "Medium" = "#f39c12", 
+                         "Medium" = "#f39c12",
                          "Low" = "#e74c3c",
                          "None" = "#95a5a6")
     
@@ -132,7 +153,7 @@ server <- function(input, output, session) {
           style = paste0("background:", conf_color, "; height:12px; width:",
                          ifelse(res$confidence=="High", "100%",
                                 ifelse(res$confidence=="Medium", "65%",
-                                       ifelse(res$confidence=="Low", "35%", "0%"))), 
+                                       ifelse(res$confidence=="Low", "35%", "0%"))),
                          "; border-radius:6px; margin-top:8px;")
         )
       ),
@@ -144,13 +165,11 @@ server <- function(input, output, session) {
   })
   
   output$prediction_buttons <- renderUI({
-    preds <- if (input$input == "" && input$go == 0) 
-      rep("the", as.numeric(input$mode)) 
-    else prediction_result()$words
+    preds <- current_result()$words
     
     btns <- lapply(seq_along(preds), function(i) {
       word <- preds[i]
-      is_bad <- is.na(word) || word == "" || word == "NA"
+      is_bad <- is.na(word) || word == ""
       
       actionButton(
         inputId = paste0("btn", i),
@@ -175,10 +194,6 @@ server <- function(input, output, session) {
       }
       updateTextInput(session, "input", value = new_text)
     }
-  })
-  
-  observeEvent(input$clear, {
-    updateTextInput(session, "input", value = "")
   })
 }
 
