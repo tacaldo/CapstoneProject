@@ -93,26 +93,33 @@ server <- function(input, output, session) {
     preds <- if (input$input == "") rep("the", 5) else predictions()
     
     btns <- lapply(seq_along(preds), function(i) {
+      word <- preds[i]
+      is_na <- is.na(word) || word == "" || word == "NA"
+      
       actionButton(
         inputId = paste0("btn", i),
-        label = tags$span(preds[i], style = "font-size:22px; font-weight:bold;"),
-        class = "btn-success btn-lg",
-        style = "width:100%; margin:8px 0; height:70px;",
-        onclick = paste0("Shiny.setInputValue('selected_word', '", preds[i], "', {priority: 'event'});")
+        label = tags$span(word, style = "font-size:22px; font-weight:bold;"),
+        class = if (is_na) "btn-default" else "btn-success",
+        style = paste0("width:100%; margin:8px 0; height:70px;",
+                       if (is_na) "opacity:0.3; cursor:not-allowed;" else ""),
+        disabled = if (is_na) "" else NULL,
+        onclick = if (!is_na) paste0("Shiny.setInputValue('selected_word', '", word, "', {priority: 'event'});") else NULL
       )
     })
     do.call(tagList, btns)
   })
   
-  # Auto-append prediction
+  # Auto-append only valid words
   observeEvent(input$selected_word, {
-    current <- trimws(input$input)
-    new_text <- if (current == "" || endsWith(current, " ")) {
-      paste(current, input$selected_word)
-    } else {
-      paste(current, input$selected_word)
+    if (!is.null(input$selected_word) && !is.na(input$selected_word) && input$selected_word != "") {
+      current <- trimws(input$input)
+      new_text <- if (current == "" || endsWith(current, " ")) {
+        paste(current, input$selected_word)
+      } else {
+        paste(current, input$selected_word)
+      }
+      updateTextInput(session, "input", value = new_text)
     }
-    updateTextInput(session, "input", value = new_text)
   })
   
   # Clear button
