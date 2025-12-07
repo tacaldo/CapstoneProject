@@ -70,7 +70,7 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       width = 5,
-      textInput("input", "Type your sentence:", 
+      textInput("input", "Type your sentence:",
                 value = "one of the", width = "100%"),
       radioButtons("mode", "Show:",
                    choices = c("Top 5 Predictions" = 5, "Best 1 Prediction" = 1),
@@ -100,10 +100,11 @@ ui <- fluidPage(
             tags$li("Type or edit the sentence above"),
             tags$li("Click ", tags$strong("Predict"), " to see suggestions"),
             tags$li("Click any green button to ", tags$strong("auto-append"), " the word"),
+            tags$li("Grayed-out buttons (NA) mean no prediction was found for that position"),
             tags$li("Use ", tags$strong("Clear"), " to start over"),
             tags$li("Switch between Top 5 or Best 1 prediction")
           ),
-          tags$p("Watch the confidence and source update in real time!", 
+          tags$p("Watch the confidence and source update in real time!",
                  style = "font-style:italic; color:#555;")
         )
       )
@@ -196,5 +197,4 @@ server <- function(input, output, session) {
     }
   })
 }
-
 shinyApp(ui = ui, server = server)
