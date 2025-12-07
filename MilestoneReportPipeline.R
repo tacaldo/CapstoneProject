@@ -109,11 +109,11 @@ for (file_path in files) {
   
   write.csv(data_summary,            paste0(prefix, "_summary.csv"),           row.names = FALSE)
   write.csv(word_freq,               paste0(prefix, "_unigrams.csv"),          row.names = FALSE)
-  # write.csv(head(big_freq, 5000),    paste0(prefix, "_bigrams_top5000.csv"),   row.names = FALSE)
-  # write.csv(head(tri_freq, 5000),    paste0(prefix, "_trigrams_top5000.csv"),  row.names = FALSE)
+  write.csv(head(big_freq, 5000),    paste0(prefix, "_bigrams_top5000.csv"),   row.names = FALSE)
+  write.csv(head(tri_freq, 5000),    paste0(prefix, "_trigrams_top5000.csv"),  row.names = FALSE)
   
-  write.csv(head(big_freq, 50),    paste0(prefix, "_bigrams_top50.csv"),   row.names = FALSE)
-  write.csv(head(tri_freq, 50),    paste0(prefix, "_trigrams_top50.csv"),  row.names = FALSE)
+  # write.csv(head(big_freq, 50),    paste0(prefix, "_bigrams_top50.csv"),   row.names = FALSE)
+  # write.csv(head(tri_freq, 50),    paste0(prefix, "_trigrams_top50.csv"),  row.names = FALSE)
   
   
   writeLines(clean_lines,            paste0(prefix, "_cleaned.txt"))
