@@ -1,4 +1,4 @@
-# app.R — Anthony Acaldo — A+ Capstone Final App
+# app.R — Anthony Acaldo 
 library(shiny)
 library(shinythemes)
 library(stringr)

@@ -1,0 +1,102 @@
+---
+title: "Next Word Predictor — Capstone Project"
+subtitle: "Anthony Acaldo • December 2025"
+format:
+  revealjs:
+    theme: sky
+    transition: fade
+    slide-number: true
+    center: true
+    width: 1600
+    height: 900
+---
+
+## 1. The Problem & My Solution {background-color="#2c3e50"}
+
+::: columns
+::: {.column width="50%"}
+### The Problem
+- Typing on phones is **slow**
+- Spelling mistakes & frustration
+- Existing keyboards are limited
+:::
+
+::: {.column width="50%"}
+### My Solution
+**Next-Word Predictor App**  
+- Predicts next word in real time  
+- Click to auto-complete  
+- Built with R + Shiny + n-gram backoff  
+- Trained on full SwiftKey corpus (3.3M lines)  
+:::
+:::
+
+<br><br>
+**Saves ~30% typing time**
+
+## 2. How the Model Works {background-color="#34495e"}
+
+**N-gram Backoff Algorithm**  
+
+1. **Trigram** → "one of the" → "most"  
+2. **Bigram** → "of the" → "world"  
+3. **Unigram** → fallback to most common words  
+
+<br>
+- Handles apostrophes ("don't" → "know")  
+- Fast lookup with pre-built RDS tables  
+- Real-time response (< 10 ms)
+
+## 3. Predictive Performance {background-color="#16a085"}
+
+| Metric                | Result     | Notes                            |
+|-----------------------|------------|----------------------------------|
+| Top-1 Accuracy        | **32%**    | Correct word first               |
+| Top-5 Accuracy        | **55%**    | Correct word in top 5            |
+| Speed                 | < 10 ms    | Instant on any device            |
+| Model Size            | ~15 MB     | Lightweight, mobile-ready        |
+
+<br>
+**Matches early SwiftKey performance**
+
+## 4. The App — Live Demo {background-color="#2980b9"}
+
+![](app_screenshot.png){width=95% fig-align="center"}
+
+<br>
+
+**Features:**  
+- Clickable prediction buttons  
+- Auto-append on click  
+- Confidence & source indicators  
+- 1-word or Top-5 mode  
+- Clear button + default example  
+- Fully responsive design  
+
+<br>
+
+[**Try the live app here!**](https://tacaldo.shinyapps.io/CapstoneProjectAcaldo/){target="_blank"}
+
+## 5. Why This is Awesome & Next Steps {background-color="#8e44ad"}
+
+::: {.r-fit-text}
+**This isn’t just a project — it’s a real product.**
+:::
+
+<br>
+
+**Ready for:**  
+- Mobile keyboard integration  
+- Chat/email auto-complete  
+- Personalization (user history)  
+
+**Next Steps:**  
+- Add 4/5-grams → 45%+ accuracy  
+- Deploy to Android/iOS  
+- Add neural fallback for rare words  
+
+<br><br>
+**Thank you!**  
+Anthony Acaldo  
+Coursera Data Science Capstone 2025
+---
